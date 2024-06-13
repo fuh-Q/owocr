@@ -57,7 +57,7 @@ fn run_prediction(inputs: Vec<u8>) -> Result<Vec<f32>, String> {
     args.add_feed(&input_op, 0, &input_tensor);
     let output_token = args.request_fetch(&output_op, 0);
 
-    _ = bundle.session.run(&mut args);
+    maybe!(bundle.session.run(&mut args));
 
     let output = maybe!(args.fetch(output_token));
     Ok(output.to_vec())
