@@ -1,11 +1,9 @@
 """
-Convolutional network that does real-world character recognition
-Mitchell Vitez 2020
+Old training script
 
-Input: images of characters from the chars74k dataset
-Output: a character in the set "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+Derived from https://github.com/mitchellvitez/chars74k/blob/master/chars74k.py
 
-Dataset from http://www.ee.surrey.ac.uk/CVSSP/demos/chars74k
+The one I used to train the model used in the demo is in `train.py`
 """
 
 from __future__ import annotations

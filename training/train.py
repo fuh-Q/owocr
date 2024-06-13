@@ -1,3 +1,12 @@
+"""
+Credits
+-------
+
+This script is derived as a mix-and-mash of:
+https://github.com/mitchellvitez/chars74k/blob/master/chars74k.py
+https://medium.com/@francescofranco_39234/build-a-resnet-from-scratch-with-tensorflow-and-keras-1b47ba6dd0f5
+"""
+
 from __future__ import annotations
 
 import random
