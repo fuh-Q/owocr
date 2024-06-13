@@ -30,13 +30,15 @@ async function clickHandler() {
         const opts = { filename: selected, showImage: true };
         [prediction, confidence] = await invoke<[string, number]>("predict", opts);
     } catch (e: any) {
-        const field = document.getElementById("error-reporting") as HTMLDivElement | null;
+        const field = document.getElementById("error-reporting") as HTMLButtonElement | null;
         if (!field) {
             return;
         }
 
+        field.disabled = false;
         field.classList.add("error-blob");
         field.textContent = `error: ${e}`;
+        field.addEventListener("click", dismissError);
 
         return;
     }
@@ -46,13 +48,14 @@ async function clickHandler() {
 }
 
 function dismissError() {
-    const field = document.getElementById("error-reporting") as HTMLDivElement | null;
+    const field = document.getElementById("error-reporting") as HTMLButtonElement | null;
     if (!field) {
         return;
     }
 
-    field.classList.remove("error-blob");
+    field.disabled = true;
     field.textContent = "";
+    field.classList.remove("error-blob");
 }
 
 function Home() {
@@ -68,7 +71,7 @@ function Home() {
                 <button className={styles.butt} onClick={clickHandler}>
                     Upload Image
                 </button>
-                <div id="error-reporting" onClick={dismissError}></div>
+                <button id="error-reporting" disabled></button>
                 <div className="warning-blob">
                     <strong>Limitations</strong>
                     <br />

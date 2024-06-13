@@ -59,6 +59,10 @@ p {
     margin: 0;
 }
 
+#error-reporting:disabled {
+    visibility: hidden;
+}
+
 .error-blob {
     position: relative;
     background-color: rgba(var(--red), 0.2);
@@ -89,7 +93,8 @@ p {
         opacity: 0;
     }
 
-    &:hover::after {
+    &:hover::after,
+    &:focus::after {
         opacity: 1;
     }
 }
