@@ -5,13 +5,13 @@ use std::sync::Arc;
 
 use lazy_static::lazy_static;
 
-use tauri::Manager;
+use tauri::{Manager, Url};
 
 use image::imageops::FilterType;
 use ordered_float::OrderedFloat;
 use tensorflow::{Graph, SavedModelBundle, SessionOptions, SessionRunArgs, Tensor};
 
-#[derive(Clone, serde::Serialize)]
+#[derive(Clone, Copy, serde::Serialize)]
 struct PredictionPayload {
     prediction: char,
     confidence: f32,
@@ -31,6 +31,12 @@ lazy_static! {
     };
 }
 
+macro_rules! maybe {
+    ($result:expr) => {
+        $result.map_err(|e| e.to_string())?
+    };
+}
+
 /// original can be found at:
 ///
 /// https://github.com/tensorflow/rust/blob/756920c8f18ea121d49fa1452c4604494c20ca49/examples/keras_single_input_saved_model.rs
@@ -38,38 +44,22 @@ fn run_prediction(inputs: Vec<u8>) -> Result<Vec<f32>, String> {
     let graph = &GRAPH_SESH.0;
     let bundle = &GRAPH_SESH.1;
 
+    let signature = maybe!(bundle.meta_graph_def().get_signature("serving_default"));
+    let input_info = maybe!(signature.get_input("input_layer"));
+    let output_info = maybe!(signature.get_output("output_0"));
+    let input_op = maybe!(graph.operation_by_name_required(&input_info.name().name));
+    let output_op = maybe!(graph.operation_by_name_required(&output_info.name().name));
+
     let inputs: Vec<f32> = inputs.iter().map(|b| *b as f32).collect();
-
-    let input_tensor = Tensor::new(&[1, 32, 32, 1])
-        .with_values(&inputs)
-        .map_err(|e| e.to_string())?;
-
-    let signature = bundle
-        .meta_graph_def()
-        .get_signature("serving_default")
-        .map_err(|e| e.to_string())?;
-
-    let input_info = signature
-        .get_input("input_layer")
-        .map_err(|e| e.to_string())?;
-    let output_info = signature
-        .get_output("output_0")
-        .map_err(|e| e.to_string())?;
-
-    let input_op = graph
-        .operation_by_name_required(&input_info.name().name)
-        .map_err(|e| e.to_string())?;
-    let output_op = graph
-        .operation_by_name_required(&output_info.name().name)
-        .map_err(|e| e.to_string())?;
+    let input_tensor = maybe!(Tensor::new(&[1, 32, 32, 1]).with_values(&inputs));
 
     let mut args = SessionRunArgs::new();
     args.add_feed(&input_op, 0, &input_tensor);
     let output_token = args.request_fetch(&output_op, 0);
 
-    bundle.session.run(&mut args).map_err(|e| e.to_string())?;
+    _ = bundle.session.run(&mut args);
 
-    let output = args.fetch(output_token).map_err(|e| e.to_string())?;
+    let output = maybe!(args.fetch(output_token));
     Ok(output.to_vec())
 }
 
@@ -79,13 +69,12 @@ async fn predict(
     filename: &str,
     show_image: bool,
 ) -> Result<(char, f32), String> {
-    let img = image::open(filename).map_err(|e| e.to_string())?;
+    let img = maybe!(image::open(filename));
     if show_image {
-        const MSG: &str = "literally no reason to fail";
         _ = tauri::WindowBuilder::new(
             &handle,
             "input",
-            tauri::WindowUrl::External(format!("file://{filename}").parse().expect(MSG)),
+            tauri::WindowUrl::External(maybe!(format!("file://{filename}").parse::<Url>())),
         )
         .title("Input Image")
         .center()
@@ -116,15 +105,16 @@ async fn verdict(
     prediction: char,
     confidence: f32,
 ) -> Result<(), String> {
-    let window = Arc::new(
-        tauri::WindowBuilder::new(&handle, "verdict", tauri::WindowUrl::App("/verdict".into()))
-            .title("Verdict")
-            .focused(true)
-            .inner_size(400_f64, 420_f64)
-            .resizable(false)
-            .build()
-            .map_err(|e| e.to_string())?,
-    );
+    let window = Arc::new(maybe!(tauri::WindowBuilder::new(
+        &handle,
+        "verdict",
+        tauri::WindowUrl::App("/verdict".into())
+    )
+    .title("Verdict")
+    .focused(true)
+    .inner_size(400_f64, 420_f64)
+    .resizable(false)
+    .build()));
 
     let msg = PredictionPayload {
         prediction,
