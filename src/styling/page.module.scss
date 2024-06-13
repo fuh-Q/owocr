@@ -1,6 +1,6 @@
 @import "./rgbbutton.scss";
 
-@include rgbbutton(112%, 147%, -6%, -21%);
+@include rgbbutton(112%, 147%, -5.5%, -20.5%, 1);
 
 .ferris {
     transform: rotate(-15deg);

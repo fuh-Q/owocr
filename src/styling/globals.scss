@@ -21,7 +21,7 @@
     --even-lighter-foreground: 120, 120, 120;
     --bright-foreground: 160, 160, 160;
 
-    --gradient: conic-gradient(red, orange, magenta, red);
+    --gradient: conic-gradient(rgba(var(--red)), rgba(var(--yellow)), rgba(var(--nitro-pink)), rgba(var(--red)));
 }
 
 html {

@@ -91,7 +91,7 @@
     }
 }
 
-@include rgbbutton(112%, 145%, -6.5%, -20%);
+@include rgbbutton(123%, 145%, -11%, -20%, 1);
 
 .butt {
     animation: butt-transition-in 3s ease-in-out;
