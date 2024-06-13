@@ -3,12 +3,12 @@
 
 use std::sync::Arc;
 
-use image::imageops::FilterType;
-
 use lazy_static::lazy_static;
-use ordered_float::OrderedFloat;
 
 use tauri::Manager;
+
+use image::imageops::FilterType;
+use ordered_float::OrderedFloat;
 use tensorflow::{Graph, SavedModelBundle, SessionOptions, SessionRunArgs, Tensor};
 
 #[derive(Clone, serde::Serialize)]
