@@ -24,11 +24,13 @@ async function clickHandler() {
     }
 
     await invoke("close_pred_windows");
-    let prediction, confidence;
 
     try {
         const opts = { filename: selected, showImage: true };
-        [prediction, confidence] = await invoke<[string, number]>("predict", opts);
+        const [prediction, confidence] = await invoke<[string, number]>("predict", opts);
+
+        dismissError();
+        await invoke("verdict", { prediction, confidence });
     } catch (e: any) {
         const field = document.getElementById("error-reporting") as HTMLButtonElement | null;
         if (!field) {
@@ -39,12 +41,7 @@ async function clickHandler() {
         field.classList.add("error-blob");
         field.textContent = `error: ${e}`;
         field.addEventListener("click", dismissError);
-
-        return;
     }
-
-    dismissError();
-    await invoke("verdict", { prediction, confidence });
 }
 
 function dismissError() {
