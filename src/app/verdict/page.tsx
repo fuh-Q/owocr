@@ -14,16 +14,12 @@ function Verdict() {
     const [prediction, setPred] = useState<string | null>(null);
     const [confidence, setConf] = useState<number | null>(null);
 
-    useEffect(() => {
-        listen<PredictionPayload>("prediction", ({ payload }) => {
-            setPred(payload.prediction);
-            setConf(payload.confidence);
-        });
-    }, []);
+    listen<PredictionPayload>("prediction", ({ payload }) => {
+        setPred(payload.prediction);
+        setConf(payload.confidence);
+    });
 
-    useEffect(() => {
-        emit("ready");
-    }, []);
+    emit("ready");
 
     useEffect(() => {
         setTimeout(() => {
