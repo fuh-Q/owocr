@@ -24,7 +24,7 @@ lazy_static! {
     pub static ref GRAPH_SESH: (Graph, SavedModelBundle) = {
         let mut graph = Graph::new();
         let bundle =
-            SavedModelBundle::load(&SessionOptions::new(), &["serve"], &mut graph, MODEL_DIR)
+            SavedModelBundle::load(&SessionOptions::new(), ["serve"], &mut graph, MODEL_DIR)
                 .expect("cannot load model");
 
         (graph, bundle)
@@ -40,7 +40,7 @@ macro_rules! maybe {
 /// original can be found at:
 ///
 /// https://github.com/tensorflow/rust/blob/756920c8f18ea121d49fa1452c4604494c20ca49/examples/keras_single_input_saved_model.rs
-fn run_prediction(inputs: Vec<u8>) -> Result<Vec<f32>, String> {
+fn run_prediction(inputs: &[u8]) -> Result<Vec<f32>, String> {
     let graph = &GRAPH_SESH.0;
     let bundle = &GRAPH_SESH.1;
 
@@ -50,7 +50,7 @@ fn run_prediction(inputs: Vec<u8>) -> Result<Vec<f32>, String> {
     let input_op = maybe!(graph.operation_by_name_required(&input_info.name().name));
     let output_op = maybe!(graph.operation_by_name_required(&output_info.name().name));
 
-    let inputs: Vec<f32> = inputs.iter().map(|b| *b as f32).collect();
+    let inputs: Vec<f32> = inputs.iter().map(|b| f32::from(*b)).collect();
     let input_tensor = maybe!(Tensor::new(&[1, 32, 32, 1]).with_values(&inputs));
 
     let mut args = SessionRunArgs::new();
@@ -78,7 +78,7 @@ async fn predict(
         )
         .title("Input Image")
         .center()
-        .inner_size(img.width() as f64, img.height() as f64)
+        .inner_size(f64::from(img.width()), f64::from(img.height()))
         .resizable(false)
         .build();
     }
@@ -88,15 +88,14 @@ async fn predict(
         .into_luma8()
         .into_raw();
 
-    let outputs = run_prediction(img)?;
+    let outputs = run_prediction(&img)?;
     let (highest_idx, highest) = outputs
         .iter()
         .enumerate()
         .max_by_key(|(_, &n)| OrderedFloat::from(n))
         .expect("output tensor is never empty");
 
-    const MSG: &str = "index is always within bounds";
-    Ok((CHARS.chars().nth(highest_idx).expect(MSG), *highest))
+    Ok((CHARS.chars().nth(highest_idx).expect("not none"), *highest))
 }
 
 #[tauri::command]
