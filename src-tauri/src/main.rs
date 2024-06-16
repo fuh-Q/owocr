@@ -71,6 +71,12 @@ async fn predict(
 ) -> Result<(char, f32), String> {
     let img = maybe!(image::open(filename));
     if show_image {
+        // minimum 250x150 window for the input image view
+        let (width, height) = (
+            f64::from(u32::max(img.width(), 250)),
+            f64::from(u32::max(img.height(), 150)),
+        );
+
         _ = tauri::WindowBuilder::new(
             &handle,
             "input",
@@ -78,7 +84,7 @@ async fn predict(
         )
         .title("Input Image")
         .center()
-        .inner_size(f64::from(img.width()), f64::from(img.height()))
+        .inner_size(width, height)
         .resizable(false)
         .build();
     }
