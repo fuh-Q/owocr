@@ -71,10 +71,10 @@ fn run_prediction(inputs: &[u8]) -> Result<Vec<f32>, String> {
 async fn predict(
     handle: tauri::AppHandle,
     filename: &str,
-    show_image: bool,
+    show_image: Option<bool>,
 ) -> Result<(char, f32), String> {
     let img = maybe!(image::open(filename));
-    if show_image {
+    if show_image.unwrap_or(false) {
         // minimum 250x150 window for the input image view
         let (width, height) = (
             f64::from(u32::max(img.width(), 250)),
