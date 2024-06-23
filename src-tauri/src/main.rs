@@ -1,4 +1,4 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
+// prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::sync::Arc;
@@ -21,6 +21,7 @@ const CHARS: &str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw
 const MODEL_DIR: &str = "model/";
 
 lazy_static! {
+    /// pre-initializes a graph and model object so that we only need to do file-IO once
     pub static ref GRAPH_SESH: (Graph, SavedModelBundle) = {
         let mut graph = Graph::new();
         let bundle =
@@ -31,6 +32,7 @@ lazy_static! {
     };
 }
 
+/// shorthand to remove boilerplate
 macro_rules! maybe {
     ($result:expr) => {
         $result.map_err(|e| e.to_string())?
@@ -63,6 +65,8 @@ fn run_prediction(inputs: &[u8]) -> Result<Vec<f32>, String> {
     Ok(output.to_vec())
 }
 
+/// invoked from the frontend, runs an input image through the model
+/// and optionally displays the input image in a new window
 #[tauri::command]
 async fn predict(
     handle: tauri::AppHandle,
@@ -104,6 +108,7 @@ async fn predict(
     Ok((CHARS.chars().nth(highest_idx).expect("not none"), *highest))
 }
 
+/// invoked from the frontend, opens a new window to display a prediction result
 #[tauri::command]
 async fn verdict(
     handle: tauri::AppHandle,
@@ -133,6 +138,7 @@ async fn verdict(
     Ok(())
 }
 
+/// invoked from the frontend, closes outstanding windows
 #[tauri::command]
 async fn close_pred_windows(handle: tauri::AppHandle) {
     let windows = handle.windows();
