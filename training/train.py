@@ -53,27 +53,27 @@ num_classes += 10
 images = np.vstack((images_mnist, images_test_mnist))
 labels = np.hstack((labels_mnist, labels_test_mnist))
 
-# print("Loading Kaggle A-Z dataset...")
+print("Loading Kaggle A-Z dataset...")
 
-# num_classes += 26
-# images_kaggle = []
-# labels_kaggle = []
+num_classes += 26
+images_kaggle = []
+labels_kaggle = []
 
-# with open("dataset/a_z-handwritten.csv", "r") as f:
-#     for line in f.readlines():
-#         line = [int(i) for i in line.split(",")]
-#         label, image = line[0], np.array(line[1:], dtype=np.uint8)
+with open("dataset/a_z-handwritten.csv", "r") as f:
+    for line in f.readlines():
+        line = [int(i) for i in line.split(",")]
+        label, image = line[0], np.array(line[1:], dtype=np.uint8)
 
-#         image = image.reshape((28, 28))
+        image = image.reshape((28, 28))
 
-#         images_kaggle.append(image)
-#         labels_kaggle.append(label + 10)  # first 10 labels are the numbers in the MNIST set
+        images_kaggle.append(image)
+        labels_kaggle.append(label + 10)  # first 10 labels are the numbers in the MNIST set
 
-# images_kaggle = np.array(images_kaggle, dtype=np.uint8)
-# labels_kaggle = np.array(labels_kaggle, dtype=int)
+images_kaggle = np.array(images_kaggle, dtype=np.uint8)
+labels_kaggle = np.array(labels_kaggle, dtype=int)
 
-# images = np.vstack((images, images_kaggle))
-# labels = np.hstack((labels, labels_kaggle))
+images = np.vstack((images, images_kaggle))
+labels = np.hstack((labels, labels_kaggle))
 
 images = [cv.resize(img, dsize=input_shape[:-1][::-1]) for img in images]
 images = np.expand_dims(images, axis=-1)
