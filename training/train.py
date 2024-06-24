@@ -207,5 +207,4 @@ for num in range(3):
 
 if input("save model? [y/n] > ").lower() in ("1", "true", "y", "ye", "yes"):
     model.save("model.keras", overwrite=True)
-    # model.save_weights("model.weights.h5", overwrite=True)
     model.export("model")
