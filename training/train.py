@@ -5,6 +5,7 @@ Credits
 This script is derived as a mix-and-mash of:
 
 https://github.com/mitchellvitez/chars74k/blob/master/chars74k.py
+https://pyimagesearch.com/2020/08/17/ocr-with-keras-tensorflow-and-deep-learning/
 https://medium.com/@francescofranco_39234/build-a-resnet-from-scratch-with-tensorflow-and-keras-1b47ba6dd0f5
 """
 
